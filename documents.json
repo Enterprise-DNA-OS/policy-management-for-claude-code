@@ -1,11 +1,39 @@
 [
   {
-    "name": "example",
-    "title": "TODO(author): the first document this industry must produce",
-    "for_each": "select gen_random_uuid() as id, 'Example' as name",
+    "name": "policy-pack",
+    "title": "Controlled policy pack",
+    "for_each": "select id,name from policies where not archived",
     "file": "name",
     "sections": [
-      { "title": "Details", "sql": "select 'replace me' as item, $1::text as record_id" }
+      {
+        "title": "Current policy",
+        "sql": "select p.name,p.category,o.name as owner,r.version,r.body,r.effective_on from policies p join people o on o.id=p.owner_id left join revisions r on r.policy_id=p.id and r.status='effective' where p.id=$1"
+      },
+      {
+        "title": "Decision evidence",
+        "sql": "select r.version,a.decision,pe.name as approver,a.decided_on,a.evidence from revisions r join approvals a on a.revision_id=r.id join people pe on pe.id=a.approver_id where r.policy_id=$1 order by r.version"
+      },
+      {
+        "title": "Review notes",
+        "sql": "select body,author,created_at from notes where policy_id=$1 order by created_at"
+      }
+    ]
+  },
+  {
+    "name": "attestation-register",
+    "title": "Policy acknowledgement register",
+    "for_each": "select id,name from policies where not archived",
+    "file": "name",
+    "sections": [
+      {
+        "title": "Version-specific acknowledgement evidence",
+        "sql": "select v.policy,v.version,v.version_status,v.person,v.department,v.due_on,v.acknowledged_on,v.evidence from v_acknowledgements v join assignments a on a.id=v.id join revisions r on r.id=a.revision_id where r.policy_id=$1 order by v.version,v.person",
+        "note": "Recorded by an operator from external evidence. This is not an electronic signature service."
+      },
+      {
+        "title": "Exceptions",
+        "sql": "select name,reason,expires_on,status,resolution from exceptions where policy_id=$1 order by expires_on"
+      }
     ]
   }
 ]

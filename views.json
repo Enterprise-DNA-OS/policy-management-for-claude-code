@@ -1,13 +1,31 @@
 [
   {
     "name": "week",
-    "title": "This week",
-    "subtitle": "Policy Management for Claude Code: what needs attention, rendered by npm run view",
+    "title": "Policy review desk",
+    "sections": [
+      {
+        "title": "Policy review desk",
+        "sql": "select source_id,name,owner,version,review_on,review_days from v_review_queue order by review_on"
+      }
+    ]
+  },
+  {
+    "name": "acknowledgements",
+    "title": "Acknowledgements due",
+    "sections": [
+      {
+        "title": "Acknowledgements due",
+        "sql": "select source_id,policy,version,person,department,due_on,days_overdue from v_acknowledgements where acknowledged_on is null and version_status='effective' order by due_on,source_id"
+      }
+    ]
+  },
+  {
+    "name": "attention",
+    "title": "Needs attention",
     "sections": [
       {
         "title": "Needs attention",
-        "note": "TODO(author): point this at the industry's attention view (overdue, stuck, quiet).",
-        "sql": "select 'replace me' as item, 'TODO(author)' as why"
+        "sql": "select * from v_attention order by kind,reference"
       }
     ]
   }

@@ -16,3 +16,7 @@ feeds/
 exports/
 imports/
 private-*.json
+
+exports/
+imports/
+private-*.json

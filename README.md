@@ -1,115 +1,83 @@
-<h1 align="center">Policy Management for Claude Code</h1>
+# Policy Management for Claude Code
 
-<p align="center">
-  <strong>The open-source policy management system that is just a database and Claude Code.</strong>
-</p>
+Own your policy versions, approval evidence, review dates and acknowledgements. Built for an operator who manages the policy register for a professional firm or other small organisation.
 
-<p align="center">
-  Created by <a href="https://www.enterprisedna.co"><strong>Enterprise DNA</strong></a>. Free and open source. Works with Claude Code, Codex, OpenCode or Cursor.
-</p>
+## Three ways to run it
 
-<!-- three-doors -->
-<table align="center">
-  <tr>
-    <td align="center"><strong>Do it yourself</strong><br/>Clone it, run it, own it. Free, MIT.<br/><a href="#quick-start">Quick start</a></td>
-    <td align="center"><strong>We customise it</strong><br/>Your fields, your rules, your VComply PolicyOps data brought across.<br/><a href="https://enterprisedna.co/omni/book/?utm_source=github&utm_medium=readme&utm_campaign=vcomply-policyops">Book a call</a></td>
-    <td align="center"><strong>We run it for you</strong><br/>Installed, connected and operated inside Omni. Setup fee, then a retainer.<br/><a href="https://enterprisedna.co/omni/instead-of/vcomply-policyops?utm_source=github&utm_medium=readme&utm_campaign=vcomply-policyops">How it works</a></td>
-  </tr>
-</table>
+- **Do it yourself:** free under the MIT licence. Install it, map your exported records and run the commands with Claude Code, Codex, OpenCode or Cursor.
+- **We customise it:** Enterprise DNA brings your VComply records across and builds your fields, rules, documents, connections and a team screen if needed. One setup fee, then a retainer.
+- **We run it for you:** installed, maintained and operated through Omni by Enterprise DNA. One setup fee, then a retainer. [Book a call](https://enterprisedna.co/omni/book?offer=replace-software&utm_campaign=vcomply-policyops&utm_medium=github).
 
-<p align="center">
-  <a href="#what-is-this">What is this</a> &bull;
-  <a href="#why-no-front-end">Why no front end</a> &bull;
-  <a href="#quick-start">Quick start</a> &bull;
-  <a href="#the-commands">Commands</a> &bull;
-  <a href="#instead-of-vcomply-policyops">Instead of VComply PolicyOps</a> &bull;
-  <a href="#want-it-installed-and-run-for-you">Installed for you</a> &bull;
-  <a href="#license">License</a>
-</p>
+## Try it
 
-<p align="center">
-  <img src="https://img.shields.io/badge/Node-20+-339933?style=flat-square" alt="Node 20+" />
-  <img src="https://img.shields.io/badge/PostgreSQL-any-336791?style=flat-square" alt="PostgreSQL" />
-  <img src="https://img.shields.io/badge/PGlite-embedded-3ecf8e?style=flat-square" alt="PGlite" />
-  <img src="https://img.shields.io/badge/License-MIT-yellow?style=flat-square" alt="MIT License" />
-</p>
-
----
-
-## What is this
-
-Policy Management for Claude Code does the job you pay VComply PolicyOps for, as a Postgres database and a set of agent commands. There is no web front end. You open the folder in [Claude Code](https://claude.com/claude-code) (or Codex, OpenCode, Cursor: see `AGENTS.md`) and ask for what you want in plain language. It runs the right query, and it can answer questions the VComply PolicyOps dashboard cannot.
-
-<!-- TODO(author): the annual bill. One sentence: what a 10 to 50 person business typically pays VComply PolicyOps per year, all in, with a source. -->
-
-Want the same thing with a web front end, or built on a different stack? That is a customisation, and it is exactly what Enterprise DNA does: [book a call](https://enterprisedna.co/omni/book/?utm_source=github&utm_medium=readme&utm_campaign=vcomply-policyops).
-
-<!-- TODO(author): two or three sentences on what this specific product covers and who it is for. -->
-
-## Why no front end
-
-- The front end was only ever there because the database was hard to talk to. That is no longer true.
-- Your data sits in plain Postgres tables you own. Any tool can read them. No export, no lock-in.
-- No seats, no tiers, no add-ons. Read [docs/why-no-front-end.md](docs/why-no-front-end.md) for the honest trade-offs too.
-
-## Quick start
-
-Sixty seconds, no database install (an embedded Postgres runs inside Node):
+Node 22.15 or newer. Windows, macOS or Linux. No database server needed for a local trial.
 
 ```bash
-git clone https://github.com/Enterprise-DNA-OS/policy-management-for-claude-code.git
-cd policy-management-for-claude-code
 npm install
+npm test
 npm run demo
+npm run migrate
+npm run seed
+npm run policy -- weekly-review
+npm run policy -- insights --json
+npm run view
+npm run docs
 ```
 
-Then open the folder in Claude Code and type a slash command. <!-- TODO(author): name the first command to try. -->
+The GitHub workflow tests Windows and Linux, with a separate PostgreSQL job. `npm run test:postgres` requires TEST_DATABASE_URL pointing to a disposable local database.
 
-### Use it with your own Postgres or Supabase
+Tests and demo use disposable fictional databases and never use DATABASE_URL. `seed` is fictional demonstration data; do not run it in your business database. To start empty, run migrate only. DATA_DIR selects a local PGlite database. DATABASE_URL selects a PostgreSQL 15+ database with invoker-rights views. See .env.example. Never commit credentials or private exports.
 
-Copy `.env.example` to `.env`, set `DATABASE_URL`, then `npm run migrate`. Same commands, shared data, no per-seat fee.
+## What this base does
 
-## The commands
+26 slash commands cover the weekly register, review queue, approval desk, acknowledgement chase, exception review, evidence checks, documents, drafts and customisation. Eight business record types hold people, policies, revisions, decisions, assignments, acknowledgements, exceptions and notes. Every write records its actor label and before/after values.
 
-<!-- TODO(author): a table of the slash commands in .claude/commands and what each one does. -->
+An independent reviewer must approve a version before it becomes effective. Approved content is locked. Safety policy versions also require consultation evidence. A replacement version supersedes the old version atomically. Old acknowledgements remain attached to the version the person actually saw. Assign the new version explicitly; a previous signature does not follow it.
 
-| Command | What it does |
-|---|---|
-| `/...` | ... |
+`npm run docs` writes controlled policy packs and acknowledgement registers as branded HTML. `npm run view` writes three read-only reports. Change business name, logo and colours in brand.json. Generated material remains local. No messages are sent.
 
-## Instead of vcomply-policyops
+This is an operator workspace, not a self-service employee portal or signature service. An operator records external acknowledgement evidence. The actor is a label, not authenticated proof of who used the terminal. Shared deployments require a trusted database role, authentication, backups and an agreed access model. Row security is enabled with no public access; the local database owner can still administer the database and its controls. Audit rows are append-only through normal database writes, not tamper-proof against the database owner.
 
-<!-- TODO(author): how to bring data across from VComply PolicyOps; link docs/replace-vcomply-policyops.md -->
+## Bring your VComply records
 
-## Architecture
-
-```
-policy-management-for-claude-code/
-  CLAUDE.md                 how the operator wants this run (routing table + house rules)
-  AGENTS.md                 the same, for Codex / OpenCode / Cursor / Gemini CLI
-  .claude/commands/         the slash commands
-  scripts/                  the CLI the commands drive
-  scripts/lib/db.mjs        one adapter: DATABASE_URL (pg) or embedded PGlite
-  supabase/migrations/      plain SQL schema
-  supabase/seed.sql         demo data
-  docs/                     the thesis and the migration guide
+```bash
+npm run policy -- import vcomply ./imports/mapped --mapping=./imports/mapping.json --dry-run
+npm run policy -- import vcomply ./imports/mapped --mapping=./imports/mapping.json --actor=Operator
+npm run policy -- export
 ```
 
-## Built for coding agents
+Read [the switch guide](docs/replace-vcomply-policyops.md). The import accepts mapped CSV records for people, policies, revisions, approvals and exceptions. It validates relationships in one transaction, preserves source IDs, and refuses changed records instead of overwriting historical evidence. Imported revisions stay drafts until checked and made effective. Original documents and historical acknowledgement exports remain archived separately. No universal VComply CSV layout has been verified; mapping and reconciliation are required before the one-command import.
 
-The database, CLI and command recipes work with Claude Code, Codex, OpenCode or Cursor. Ask your coding agent for a new command and have it implement and test the change against the same records.
+## Ten questions to ask today
 
-## Contributing
+These cross-record checks run in `npm run policy -- insights`. They are useful questions beyond a single summary chart, not a claim that VComply cannot build equivalent reports.
 
-Issues and pull requests are welcome. Keep the shape: plain SQL, a small CLI, a slash command per recurring job, no front end.
+1. Which overdue policies also have overdue acknowledgements?
+2. Which departments still owe acknowledgement of current versions?
+3. Which people hold expired exceptions and outstanding acknowledgements?
+4. Which draft safety changes lack consultation evidence?
+5. Which policy owners are inactive while reviews are overdue?
+6. Which active policies have no effective version?
+7. Which draft revisions have no independent decision?
+8. Which current policies are unassigned to active people?
+9. Which people need retention review and still own policies?
+10. Which reviews fall due in the next month while acknowledgements remain open?
 
-## Want it installed and run for you?
+## Your first hour: ten things to ask for
 
-Enterprise DNA installs Policy Management for Claude Code for your business, migrates your VComply PolicyOps data, connects it to the rest of your tools, and runs it for you as part of **Omni**, our managed Command Center. One setup fee, then a monthly retainer.
+1. Show policies due for review and the owner of each.
+2. Find current acknowledgements that are overdue.
+3. Prepare the Monday review from reviews, acknowledgements and exceptions.
+4. Show a policy and all its versions before changing it.
+5. Draft a review brief without sending it.
+6. Explain why a proposed version cannot take effect.
+7. Map a sample export and run an import preview.
+8. Put our business name and logo on the policy pack.
+9. Add a read-only report for department heads with /new-view.
+10. Add an extra policy classification with /customise and a new migration.
 
-- Book a call: [enterprisedna.co/omni/book](https://enterprisedna.co/omni/book/?offer=replace-software&utm_source=github&utm_medium=readme&utm_campaign=vcomply-policyops)
-- Read more: [enterprisedna.co/omni/instead-of/vcomply-policyops](https://enterprisedna.co/omni/instead-of/vcomply-policyops?utm_source=github&utm_medium=readme&utm_campaign=vcomply-policyops)
+## Evidence and limits
 
-## License
+[Compliance checks](docs/compliance.md) distinguish source-backed obligations from internal review choices. [CLI reference](docs/cli.md) lists fields and commands. [Research](docs/research.md) records pricing and scope. [Why no front end](docs/why-no-front-end.md) explains the operating model.
 
-MIT. Copyright (c) 2026 Enterprise DNA.
+The base covers policy administration. Enterprise DNA scopes employee access, Office document editing, distribution and integrations as part of a custom version. It does not certify compliance, decide lawful retention periods or replace the full VComply suite.

@@ -1,0 +1,4 @@
+import {mkdtempSync,rmSync} from 'node:fs';import os from 'node:os';import path from 'node:path';import {spawnSync} from 'node:child_process';
+const root=path.resolve(import.meta.dirname,'..'),temp=mkdtempSync(path.join(os.tmpdir(),'policy-demo-'));
+const env={...process.env,DATABASE_URL:'',DATA_DIR:path.join(temp,'db'),OUTPUT_DIR:temp};
+try {for(const [s,...args] of [['migrate.mjs'],['seed.mjs'],['policy.mjs','review-due'],['policy.mjs','acknowledgements-due'],['policy.mjs','compliance'],['view.mjs'],['docs.mjs']]){const r=spawnSync(process.execPath,[path.join(root,'scripts',s),...args],{cwd:root,env,encoding:'utf8'});process.stdout.write(r.stdout||'');if(r.status!==0)throw Error(r.stderr||'Demo command failed');}console.log('PASS demo: temporary data only.');}finally{rmSync(temp,{recursive:true,force:true});}

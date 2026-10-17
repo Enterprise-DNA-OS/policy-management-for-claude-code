@@ -1,0 +1,2 @@
+source_id,policy_id,person_id,name,reason,expires_on
+V-EXC-1,V-POL-1,V-PER-2,Example exception,Review required for existing trip,2027-01-01

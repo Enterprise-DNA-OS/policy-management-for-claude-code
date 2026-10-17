@@ -1,43 +1,42 @@
-# Policy Management for Claude Code: operating instructions
+# Policy Management for Claude Code
 
-This file is the brain. Claude Code reads it at the start of every session. It says who this is for, how work gets done, and the one right way to do each recurring job.
+Operate a policy register for a trusted policy coordinator. Read the database before answering. Never invent a policy, approval, signature or source fact. Read docs/cli.md for exact inputs and docs/compliance.md for check limits.
 
-## Who this is for
+## Routing
 
-- **Business:** [YOUR BUSINESS]
-- **Operator:** [YOUR NAME], [your role]
-- **What matters most:** [the one or two outcomes you care about]
+- /people: Review the people register.
+- /register: Review current policies and ownership.
+- /review-due: Prepare the policy review calendar.
+- /approval-desk: Review draft decisions and missing approvals.
+- /acknowledgements: Read version-specific acknowledgement history.
+- /acknowledgements-due: Find current acknowledgements still outstanding.
+- /exceptions: Review open and expired policy exceptions.
+- /attention: Read overdue work and evidence gaps.
+- /compliance: Check record evidence against documented rules.
+- /history: Read the recorded changes and actors.
+- /insights: Answer ten cross-record policy questions.
+- /weekly-review: Write the Monday policy review.
+- /policy: Read a policy and its version history.
+- /add: Add a record from an explicit JSON file.
+- /make-effective: Record an independently approved policy as effective.
+- /acknowledge: Record an acknowledgement from external evidence.
+- /close-exception: Record how an exception was resolved.
+- /review-policy: Record a completed review and its next date.
+- /log: Add an evidence note to a policy.
+- /draft-weekly-review: Draft the weekly governance brief.
+- /draft-review-brief: Draft a policy review pack.
+- /draft-reminders: Draft a list of acknowledgement follow-ups.
+- /import: Import mapped VComply export records.
+- /export: Export all records and audit evidence.
+- /customise: add a migration and update the workflow with regression checks.
+- /new-view: add a read-only report from existing records.
 
-Fill this in once. A worker with context knows. A worker without it guesses.
+## Rules
 
-## How to work
+Use the one CLI: npm run policy -- <command>. Match names and IDs from real records; an ambiguous match lists candidates and stops. Writes need the operator's request, an actor label and real evidence. Approvals must come from an independent reviewer. Record external acknowledgements, never sign on another person's behalf. Making effective changes the local register only. Never distribute a policy, email, delete records or connect a service without specific authorisation. Drafts stay in drafts/.
 
-1. **Take a brief, not a script.** The operator describes the outcome. You run the right command and present the answer.
-2. **Read before you write.** Before drafting anything about a record, read its full history first.
-3. **Plain language.** Short sentences. No filler. Numbers in tables.
-4. **Silent success, loud problems.** No play-by-play. Say what broke and what you did about it.
-5. **Stop at the line.** Anything that sends, deletes, or faces a customer waits for a yes in this session.
+Use npm test and npm run demo for changes; both use temporary data. Never seed a business database. Database credentials and private imports stay out of git. Do not expose the owner database connection to browsers. New fields or rules require a new migration; never rewrite applied migrations. Evidence and historical versions stay intact.
 
-## Routing table: one right way for each recurring job
+scripts/policy.mjs is the CLI; scripts/lib/domain.mjs holds allowed fields and queries; supabase/migrations contains the schema. views.json and documents.json drive read-only HTML artefacts. brand.json is the single branding file.
 
-| When the operator asks for... | Use this |
-|---|---|
-| <!-- TODO(author): one row per slash command --> | `/...` |
-
-If an ask fits nothing here, run the CLI directly (`npm run <cli> -- --help`) and then propose a new command for it.
-
-## Hard rules
-
-- Never send email or messages from here. Draft to `drafts/`, a person sends.
-- Never delete records without an explicit yes in this session. Prefer marking closed or archived.
-- Never invent a record. If a name is ambiguous, list the candidates and ask.
-- The database is the source of truth. If the answer is not in it, say so.
-
-## Where things live
-
-- `scripts/` the CLI. `scripts/lib/db.mjs` picks `DATABASE_URL` (Postgres, Supabase) or the embedded database in `.data/`.
-- `supabase/migrations/` the schema, plain SQL. `npm run migrate` applies it.
-- `.claude/commands/` the slash commands. Add one every time the same ask comes twice.
-- `docs/` the thesis and the guide for moving off VComply PolicyOps.
-
-Built by Enterprise DNA. Installed and run for you as part of Omni: https://enterprisedna.co/omni/instead-of/vcomply-policyops
+Built and maintained for you through Omni by Enterprise DNA: https://enterprisedna.co/omni/book?offer=replace-software&utm_campaign=vcomply-policyops

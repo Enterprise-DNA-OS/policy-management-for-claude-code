@@ -1,0 +1,20 @@
+import assert from 'node:assert/strict';
+import pg from 'pg';import path from 'node:path';
+import {migrate} from './migrate.mjs';import {seed} from './seed.mjs';
+import {runRead,reads,transaction,makeEffective,exportData} from './lib/domain.mjs';
+import {importVcomply} from './lib/import.mjs';
+if(!process.env.TEST_DATABASE_URL)throw Error('TEST_DATABASE_URL must name a disposable local database');
+const url=new URL(process.env.TEST_DATABASE_URL);if(!['127.0.0.1','localhost','[::1]'].includes(url.hostname))throw Error('PostgreSQL smoke is local-only');
+pg.types.setTypeParser(1082,v=>v);pg.types.setTypeParser(1114,v=>v);
+const client=new pg.Client({connectionString:process.env.TEST_DATABASE_URL});await client.connect();
+const schema='policy_test_'+process.pid+'_'+Date.now();
+const db={query:async(s,p=[])=>(await client.query(s,p)).rows,exec:s=>client.query(s)};
+try{await client.query(`create schema ${schema}`);await client.query(`set search_path to ${schema},public`);await migrate(db);await seed(db);const before=await exportData(db);await seed(db);assert.equal((await exportData(db)).audit_log.length,before.audit_log.length);
+for(const c of [...Object.keys(reads),'weekly-review','insights'])assert.ok(await runRead(db,c));
+assert.equal((await runRead(db,'compliance')).length,7);
+const folder=path.resolve(import.meta.dirname,'../examples/vcomply');await importVcomply(db,folder,{dry:true});assert.equal((await importVcomply(db,folder)).results.length,5);assert.ok((await importVcomply(db,folder)).results.every(x=>x.inserted===0));
+await assert.rejects(()=>transaction(db,()=>makeEffective(db,'REV-3')),/approval/);await transaction(db,()=>makeEffective(db,'V-REV-1'));
+await assert.rejects(()=>transaction(db,()=>db.exec("update revisions set body='changed' where source_id='REV-1'")),/immutable/);
+await assert.rejects(()=>transaction(db,()=>db.exec("update exceptions set status='closed' where source_id='EXC-1'")),/constraint/);
+console.log('PASS PostgreSQL migration, repeat seed, all reads, mapped import, independent approval and immutable evidence');
+}finally{await client.query('reset search_path');await client.query(`drop schema if exists ${schema} cascade`);await client.end();}
