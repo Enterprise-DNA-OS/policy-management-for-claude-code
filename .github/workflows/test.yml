@@ -1,5 +1,7 @@
 name: Test
-on: [push, pull_request]
+# Manual only since 2026-10-18 to save GitHub Actions minutes (Sam). To restore, put back:
+# on: [push, pull_request]
+on: [workflow_dispatch]
 jobs:
   test:
     strategy:
